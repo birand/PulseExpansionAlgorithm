@@ -16,12 +16,17 @@ The **Pulse Expansion Algorithm (PEA)** is a heuristic optimization algorithm in
 5. **Termination:** The algorithm stops when it converges on a solution or reaches a maximum number of iterations.
 
 ## Installation
-Clone the repository and use the provided Python code in your projects:
-```bash
-git clone https://github.com/your-username/pulse-expansion-algorithm.git
-```
 
-Alternatively, you can copy the PulseExpansionAlgorithm class into your Python scripts.
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/birand/PulseExpansionAlgorithm.git
+    cd PulseExpansionAlgorithm
+    ```
+
+2.  Install the dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
@@ -30,7 +35,7 @@ To use the Pulse Expansion Algorithm, instantiate the class with your objective 
 ### Example 1: Minimizing a Quadratic Function
 ```python
 import numpy as np
-from pulse_expansion_algorithm import PulseExpansionAlgorithm
+from algorithm import PulseExpansionAlgorithm
 
 # Define a simple quadratic objective function
 def objective_function(x):
@@ -49,6 +54,9 @@ print("Best Fitness:", best_fitness)
 ```
 ### Example 2: Minimizing a 2D Rosenbrock Function
 ```python
+import numpy as np
+from algorithm import PulseExpansionAlgorithm
+
 # Define the 2D Rosenbrock function
 def rosenbrock_function(x):
     return (1 - x[0])**2 + 100 * (x[1] - x[0]**2)**2  # Minimum at (1, 1)
@@ -94,14 +102,3 @@ Contributions are welcome! Feel free to fork this repository and submit pull req
 ## Contact
 
 For any questions or feedback, feel free to contact.
-
-
-### Key Sections:
-- **Introduction**: Describes the algorithm and its key features.
-- **Installation**: Instructions on how to clone the repository or use the code.
-- **Usage**: Examples showcasing how to use PEA with both 1D and 2D functions.
-- **Parameters**: Explanation of the customizable parameters.
-- **Use Cases**: Lists different types of problems the algorithm can solve.
-- **License and Contributions**: Information on licensing and how others can contribute.
-
-This `README.md` provides a comprehensive guide for users who want to understand, use, and contribute to the Pulse Expansion Algorithm project.

@@ -112,18 +112,5 @@ class PulseExpansionAlgorithm:
 
         return global_best_position, global_best
 
-# Test Example - Objective function: minimizing a quadratic function
-def objective_function(x):
-    return (x - 3)**2  # Minimum at x = 3
 
-# Define search space (1D for simplicity here)
-search_space = [-10, 10]
-
-# Instantiate the algorithm
-pea = PulseExpansionAlgorithm(obj_function=objective_function, search_space=search_space, num_pulses=5, max_iterations=100)
-
-# Run the algorithm
-best_position, best_fitness = pea.run()
-print("Best Position:", best_position)
-print("Best Fitness:", best_fitness)
 
