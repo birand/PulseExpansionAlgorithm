@@ -41,10 +41,20 @@ class PulseExpansionAlgorithm:
         """
         Initializes the pulses at random positions within the search space.
         """
-        self.pulses = [{'center': np.random.uniform(self.search_space[0], self.search_space[1]), 
-                        'radius': 1.0, 
-                        'best_fitness': float('inf'), 
-                        'best_position': None} for _ in range(self.num_pulses)]
+        if isinstance(self.search_space[0], (list, tuple, np.ndarray)):
+            # Multi-dimensional search space
+            min_bounds = np.array([s[0] for s in self.search_space])
+            max_bounds = np.array([s[1] for s in self.search_space])
+            self.pulses = [{'center': np.random.uniform(min_bounds, max_bounds), 
+                            'radius': 1.0, 
+                            'best_fitness': float('inf'), 
+                            'best_position': None} for _ in range(self.num_pulses)]
+        else:
+            # 1D search space
+            self.pulses = [{'center': np.random.uniform(self.search_space[0], self.search_space[1]), 
+                            'radius': 1.0, 
+                            'best_fitness': float('inf'), 
+                            'best_position': None} for _ in range(self.num_pulses)]
 
     def expand_wavefront(self, pulse):
         """
@@ -55,8 +65,16 @@ class PulseExpansionAlgorithm:
         """
         pulse['radius'] *= self.decay_factor
         exploration_radius = pulse['radius']
-        new_position = pulse['center'] + np.random.uniform(-exploration_radius, exploration_radius)
-        new_position = np.clip(new_position, self.search_space[0], self.search_space[1])
+        if isinstance(pulse['center'], np.ndarray):
+            # Multi-dimensional search space
+            min_bounds = np.array([s[0] for s in self.search_space])
+            max_bounds = np.array([s[1] for s in self.search_space])
+            new_position = pulse['center'] + np.random.uniform(-exploration_radius, exploration_radius, size=len(self.search_space))
+            new_position = np.clip(new_position, min_bounds, max_bounds)
+        else:
+            # 1D search space
+            new_position = pulse['center'] + np.random.uniform(-exploration_radius, exploration_radius)
+            new_position = np.clip(new_position, self.search_space[0], self.search_space[1])
         fitness = self.obj_function(new_position)
         if fitness < pulse['best_fitness']:
             pulse['best_fitness'] = fitness
@@ -73,7 +91,10 @@ class PulseExpansionAlgorithm:
         Returns:
             bool: True if the pulses are overlapping, False otherwise.
         """
-        return np.abs(pulse1['center'] - pulse2['center']) < self.pulse_overlap_threshold
+        if isinstance(pulse1['center'], np.ndarray):
+            return np.linalg.norm(pulse1['center'] - pulse2['center']) < self.pulse_overlap_threshold
+        else:
+            return np.abs(pulse1['center'] - pulse2['center']) < self.pulse_overlap_threshold
 
     def run(self):
         """
@@ -98,7 +119,8 @@ class PulseExpansionAlgorithm:
                 # Check if overlap exists
                 for j, other_pulse in enumerate(self.pulses):
                     if i != j and self.check_overlap(pulse, other_pulse):
-                        self.expand_wavefront(pulse)  # Prioritize overlap area
+                        # Adjust pulse center to move towards the overlapping pulse
+                        pulse['center'] = (pulse['center'] + other_pulse['center']) / 2
                 
                 # Global best check
                 if pulse['best_fitness'] < global_best:
