@@ -10,7 +10,7 @@ class PulseExpansionAlgorithm:
     The algorithm includes mechanisms for handling overlapping pulses and for resetting
     pulses that are not showing improvement, to avoid getting stuck in local minima.
     """
-    def __init__(self, obj_function, search_space, num_pulses=5, decay_factor=0.9, max_iterations=100, pulse_overlap_threshold=0.1, reset_threshold=10):
+    def __init__(self, obj_function, search_space, num_pulses=5, decay_factor=0.9, max_iterations=100, pulse_overlap_threshold=0.1, reset_threshold=10, convergence_threshold=1e-6, convergence_patience=10):
         """
         Initializes the Pulse Expansion Algorithm.
 
@@ -22,6 +22,8 @@ class PulseExpansionAlgorithm:
             max_iterations (int): The maximum number of iterations to run the algorithm.
             pulse_overlap_threshold (float): The threshold for considering two pulses as overlapping.
             reset_threshold (int): The number of iterations without improvement after which to reset a weak pulse.
+            convergence_threshold (float): The threshold for fitness improvement to consider the algorithm converged.
+            convergence_patience (int): The number of iterations to wait for improvement before stopping.
         """
         self.obj_function = obj_function
         self.search_space = search_space
@@ -30,6 +32,8 @@ class PulseExpansionAlgorithm:
         self.max_iterations = max_iterations
         self.pulse_overlap_threshold = pulse_overlap_threshold
         self.reset_threshold = reset_threshold
+        self.convergence_threshold = convergence_threshold
+        self.convergence_patience = convergence_patience
         self.pulses = []
         self.initialize_pulses()
 
@@ -80,11 +84,14 @@ class PulseExpansionAlgorithm:
         """
         iteration = 0
         no_improvement_count = 0
+        convergence_counter = 0
         global_best = float('inf')
         global_best_position = None
 
         while iteration < self.max_iterations:
             iteration += 1
+            previous_global_best = global_best
+
             for i, pulse in enumerate(self.pulses):
                 self.expand_wavefront(pulse)
                 
@@ -110,7 +117,14 @@ class PulseExpansionAlgorithm:
                 weakest_pulse['best_position'] = None
                 no_improvement_count = 0
 
+            # Check for convergence
+            if abs(previous_global_best - global_best) < self.convergence_threshold:
+                convergence_counter += 1
+            else:
+                convergence_counter = 0
+
+            if convergence_counter >= self.convergence_patience:
+                print(f"Convergence reached at iteration {iteration}. Stopping.")
+                break
+
         return global_best_position, global_best
-
-
-
